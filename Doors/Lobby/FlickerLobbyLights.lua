@@ -145,7 +145,7 @@ end
 -- Game Check
 
 local LOBBY_GAME_ID = 6516141723 -- For some reason, infinite yield decided to teleport me to "Doors but the monsters are nice" :sob: WTF????
-local CURRENT_GAME_ID = game.GameId
+local CURRENT_GAME_ID = game.PlaceId
 
 if LOBBY_GAME_ID ~= CURRENT_GAME_ID then
     return runCoreCall(
@@ -166,9 +166,7 @@ local AssetsFolder = LobbyFolder:WaitForChild("Assets")
 TextChatService.MessageReceived:Connect(
     function(message: TextChatMessage)
         local SourceSender = message.TextSource
-        if SourceSender.Name ~= Player.Name then
-            return
-        end
+        if SourceSender.Name ~= Player.Name then return end
 
         local SourceMessage = message.Text
 
@@ -176,16 +174,10 @@ TextChatService.MessageReceived:Connect(
             print("Message: " .. SourceMessage)
         end
 
-        if SourceMessage == "/flicker" then
-            task.spawn(flickerLights, AssetsFolder, 4, 100, Random.new(tick()))
-            
-            if _G.CDebug then
-                return runCoreCall(
-                    "Success",
-                    "Flickering lights in the lobby!",
-                    1
-                )
-            end
+        if not SourceMessage == "/flicker" then return end
+        task.spawn(flickerLights, AssetsFolder, 4, 100, Random.new(tick()))
+        if _G.CDebug then
+            return runCoreCall("Success", "Flickering lights in the lobby!", 1)
         end
     end
 )
