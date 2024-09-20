@@ -9,7 +9,7 @@ This project aims to enhance gameplay by providing various modifications through
 ## Features
 
 - **Non-Obfuscated Scripts**: All non-obfuscated scripts are open source and available for anyone to use, modify, and share.
-- **Obfuscated Scripts**: Please note that obfuscated scripts are not open source. They are provided for use only and should not be redistributed, as their primary purpose is to remain in this repository as a place to be found easily.
+- **Obfuscated Scripts**: Please note that obfuscated scripts are not open source. They are provided for use only and should not be redistributed, as their primary purpose is to remain in this repository as a place to be found easily. (I welcome the challenge however)
 
 ## Contributing
 
@@ -17,7 +17,7 @@ We welcome contributions! If you have ideas for new features or improvements, pl
 
 ## License
 
-This project is licensed under the MIT License.
+This repository and its content(s) is licensed under the MIT License.
 
 ## Contact
 
