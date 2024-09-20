@@ -21,6 +21,8 @@ local function runCoreCall(ITitle: string, IText: string, IDuration: number): ()
     assert(Success, Return)
 end
 
+--[[
+
 local function findFirstDescendant(parent, name): Instance?
     for _, descendant: Instance in pairs(parent:GetDescendants()) do
         if descendant.Name == name then
@@ -29,6 +31,9 @@ local function findFirstDescendant(parent, name): Instance?
     end
     return nil
 end
+
+Unused function since I patched the flicker function to actually make a sound lol
+--]]
 
 local function flickerLights(room, flickerDuration, percentToFlicker, randomSeed): ()
     local targetRoom = room;
@@ -111,13 +116,23 @@ local function flickerLights(room, flickerDuration, percentToFlicker, randomSeed
                     return;
                 end
 
-                local zapSound = findFirstDescendant(fixture, "BulbZap");
+                local zapSound = Instance.new("Sound");
+                zapSound.SoundId = "rbxassetid://8829969521"
+                zapSound.Parent = fixture:FindFirstChild("Base") or fixture:FindFirstChild("Stand")
+                zapSound.Volume = 0.3
+                zapSound.RollOffMaxDistance = 100
+                zapSound.RollOffMinDistance = 2
+                zapSound.RollOffMode = Enum.RollOffMode.Inverse
+                zapSound.TimePosition = math.random(0, 13) / 20;
+                zapSound.Pitch = zapSound.Pitch + math.random(-100, 100) / 5000;
+                zapSound:Play();
 
-                if zapSound then
-                    zapSound.TimePosition = math.random(0, 13) / 20;
-                    zapSound.Pitch = zapSound.Pitch + math.random(-100, 100) / 5000;
-                    zapSound:Play();
-                end
+                task.spawn(
+                    function()
+                        zapSound.Ended:Wait();
+                        zapSound:Destroy();
+                    end
+                )
 
                 for _, descendant in pairs(fixture:GetDescendants()) do
                     if descendant:IsA("Light") then
@@ -164,7 +179,7 @@ local AssetsFolder = LobbyFolder:WaitForChild("Assets")
 -- Events 
 
 TextChatService.MessageReceived:Connect(
-    function(message: TextChatMessage)
+    function(message: TextChatMessage): ()
         local SourceSender = message.TextSource
         if SourceSender.Name ~= Player.Name then return end
 
