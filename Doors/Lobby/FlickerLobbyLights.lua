@@ -144,7 +144,7 @@ end
 
 -- Game Check
 
-local LOBBY_GAME_ID = 6516141723
+local LOBBY_GAME_ID = 6516141723 -- For some reason, infinite yield decided to teleport me to "Doors but the monsters are nice" :sob: WTF????
 local CURRENT_GAME_ID = game.GameId
 
 if LOBBY_GAME_ID ~= CURRENT_GAME_ID then
