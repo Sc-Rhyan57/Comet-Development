@@ -144,8 +144,8 @@ end
 
 -- Game Check
 
-local LOBBY_GAME_ID = 11720595337
-local CURRENT_GAME_ID = game.PlaceId
+local LOBBY_GAME_ID = 6516141723
+local CURRENT_GAME_ID = game.GameId
 
 if LOBBY_GAME_ID ~= CURRENT_GAME_ID then
     return runCoreCall(
