@@ -50,6 +50,14 @@ function Module:generateRandom(Min: number, Max: number, Factor: number): number
     end
 end
 
+function Module:generateFullRandom(Min: number, Max: number, Factor: number): number
+    if Factor then
+        return Random.new(SEED + Factor):NextInteger(Min, Max)
+    else
+        return Random.new(SEED):NextInteger(Min, Max)
+    end
+end
+
 -- Return:
 
 return Module
