@@ -42,8 +42,12 @@ function Module:deltaWait(duration: number): ()
     connection:Disconnect()
 end
 
-function Module:generateRandom(Min: number, Max: number): number
-    return Random.new(SEED):NextNumber(Min, Max)
+function Module:generateRandom(Min: number, Max: number, Factor: number): number
+    if Factor then
+        return Random.new(SEED + Factor):NextNumber(Min, Max)
+    else
+        return Random.new(SEED):NextNumber(Min, Max)
+    end
 end
 
 -- Return:
