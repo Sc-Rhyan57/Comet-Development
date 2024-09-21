@@ -8,8 +8,6 @@ There may be a few new entities you will not recognize aswell.
 SyncHelper Utility Module Source: https://github.com/ChronoAcceleration/Comet-Development/blob/main/Doors/Utility/SyncHelper.lua
 -- Chrono @Comet Development
 
-game.Players.LocalPlayer.Character.Humanoid:TakeDamage(100)
-
 --]]
 
 if _G.ExecutedHorror then
@@ -471,7 +469,7 @@ local function wailingSpecter(Duration: number): ()
 
     local CurrentRoom = fetchCurrentRoom(LatestRoom.Value, CurrentRooms)
     local RoomEntrance = CurrentRoom.RoomEntrance
-    assert(RoomEntrance, "RoomEnd is nil! This is not awesome sauce.")
+    assert(RoomEntrance, "RoomEntrance is nil! This is not awesome sauce.")
 
     LatestRoom:GetPropertyChangedSignal("Value"):Wait()
 
@@ -553,13 +551,7 @@ local function spawnEntity(): ()
             end
         )
     elseif Entity == 2 then
-        task.spawn(
-            function(): ()
-                wailingSpecter(
-                    SyncHelper:generateRandom(0.5, 1, LatestRoom.Value)
-                )
-            end
-        )
+        -- wraith goes here
     end
 end
 
@@ -572,6 +564,24 @@ CurrentRooms.DescendantAdded:Connect(
     function(Asset: Instance): ()
         if Asset.Name == "HelpfulLight" then
             convertHelpfulLight(Asset, CuriousHumm:Clone())
+        end
+    end
+)
+
+-- Loop Hooks
+
+-- MAIN THREAD
+
+task.spawn(
+    function(): ()
+        while SyncHelper:deltaWait(SyncHelper:generateRandom(30, 60, LatestRoom.Value)) do
+            local SpecterSpawnChance = SyncHelper:generateFullRandom(1, 100, LatestRoom.Value)
+
+            if SpecterSpawnChance ~= 1 then
+                return
+            end
+
+            wailingSpecter(SyncHelper:generateRandom(10, 20, LatestRoom.Value))
         end
     end
 )
