@@ -1,6 +1,6 @@
 -- Services
 
-local CoreGui = game:GetService("StarterGui")
+local StarterGui = game:GetService("StarterGui")
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local TextChatService = game:GetService("TextChatService")
@@ -10,7 +10,7 @@ local TextChatService = game:GetService("TextChatService")
 local function runCoreCall(ITitle: string, IText: string, IDuration: number): ()
     local Success, Return = pcall(
         function(): boolean?
-            CoreGui:SetCore("SendNotification", {
+            StarterGui:SetCore("SendNotification", {
                 Title = ITitle,
                 Text = IText,
                 Duration = IDuration
