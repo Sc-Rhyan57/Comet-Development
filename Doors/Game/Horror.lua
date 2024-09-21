@@ -8,6 +8,8 @@ There may be a few new entities you will not recognize aswell.
 SyncHelper Utility Module Source: https://github.com/ChronoAcceleration/Comet-Development/blob/main/Doors/Utility/SyncHelper.lua
 -- Chrono @Comet Development
 
+game.Players.LocalPlayer.Character.Humanoid:TakeDamage(100)
+
 --]]
 
 if _G.ExecutedHorror then
@@ -270,6 +272,16 @@ local function convertHelpfulLight(Light: Part, Music: Sound): ()
 
         PointLight.Brightness = 1
         PointLight.Color = Color3.fromRGB(255, 238, 55)
+
+        task.delay(
+            1,
+            function(): ()
+                if PointLight.Brightness ~= 1 then
+                    print("WHYU YOU NOGIUYO OOOO STAY 1 GUTHRJDHGRSJTKGDTRGB GRRR IM GONNA KILL")
+                    PointLight.Brightness = 1
+                end
+            end
+        )
         
         if not PointLight.Shadows then
             PointLight.Shadows = true
