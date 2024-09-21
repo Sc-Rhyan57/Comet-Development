@@ -8,8 +8,6 @@ There may be a few new entities you will not recognize aswell.
 SyncHelper Utility Module Source: https://github.com/ChronoAcceleration/Comet-Development/blob/main/Doors/Utility/SyncHelper.lua
 -- Chrono @Comet Development
 
-game.Players.LocalPlayer.Character.Humanoid:TakeDamage(100)
-
 --]]
 
 if _G.ExecutedHorror then
