@@ -8,6 +8,8 @@ There may be a few new entities you will not recognize aswell.
 SyncHelper Utility Module Source: https://github.com/ChronoAcceleration/Comet-Development/blob/main/Doors/Utility/SyncHelper.lua
 -- Chrono @Comet Development
 
+game.Players.LocalPlayer.Character.Humanoid:TakeDamage(100)
+
 --]]
 
 if _G.ExecutedHorror then
@@ -254,11 +256,12 @@ local function convertHelpfulLight(Light: Part, Music: Sound): ()
     local HelpParticle = Light.HelpParticle
     HelpParticle.Color = ColorSequence.new(Color3.fromRGB(255, 238, 0))
     HelpParticle.Rate = 10
-    
+
     Music.Parent = Light
     Music.Looped = true
     Music.RollOffMaxDistance = 100
     Music.RollOffMinDistance = 0
+    Music.RollOffMode = Enum.RollOffMode.Linear
     Music.Volume = 0.5
     Music:Play()
 
@@ -267,10 +270,11 @@ local function convertHelpfulLight(Light: Part, Music: Sound): ()
             continue
         end
 
+        PointLight.Brightness = 1
         PointLight.Color = Color3.fromRGB(255, 238, 55)
         
-        if PointLight.Brightness == 11 then
-            PointLight.Brightness = 1
+        if not PointLight.Shadows then
+            PointLight.Shadows = true
         end
     end
 end
