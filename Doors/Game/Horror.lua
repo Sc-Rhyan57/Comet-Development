@@ -273,16 +273,21 @@ local function convertHelpfulLight(Light: Part, Music: Sound): ()
         PointLight.Brightness = 1
         PointLight.Color = Color3.fromRGB(255, 238, 55)
 
-        task.delay(
-            1,
+        local Change = PointLight:GetPropertyChangedSignal("Brightness"):Connect(
             function(): ()
                 if PointLight.Brightness ~= 1 then
-                    print("WHYU YOU NOGIUYO OOOO STAY 1 GUTHRJDHGRSJTKGDTRGB GRRR IM GONNA KILL")
                     PointLight.Brightness = 1
                 end
             end
         )
         
+        task.delay(
+            5,
+            function(): ()
+                Change:Disconnect()
+            end
+        )
+
         if not PointLight.Shadows then
             PointLight.Shadows = true
         end
@@ -581,8 +586,6 @@ CurrentRooms.DescendantAdded:Connect(
 )
 
 -- Loop Hooks
-
--- MAIN THREAD
 
 task.spawn(
     function(): ()
