@@ -2,13 +2,17 @@
 
 Hello!!
 This is an re-creation of my unreleased custom Doors gamemode, "Doors But Horror".
-The premise is basically a pitch-black environment, with the only light source being guiding light.
+The premise is basically a pitch-black environment, with the only light source being curious light.
 There may be a few new entities you will not recognize aswell.
 
 SyncHelper Utility Module Source: https://github.com/ChronoAcceleration/Comet-Development/blob/main/Doors/Utility/SyncHelper.lua
 -- Chrono @Comet Development
 
 --]]
+
+if _G.ExecutedHorror then
+    return
+end
 
 local StarterGui = game:GetService("StarterGui")
 local Debris = game:GetService("Debris")
@@ -30,6 +34,13 @@ local LIGHTING_CONFIGURATION = {
     ["FogColor"] = Color3.fromRGB(14, 13, 18),
     ["FogEnd"] = 100,
     ["FogStart"] = 5
+}
+
+local DEFAULT_COLOR_CORRECTION_VALUES = {
+    ["Brightness"] = 0.04,
+    ["Contrast"] = 0.05,
+    ["Saturation"] = 0.2,
+    ["Tint"] = Color3.fromRGB(255, 255, 255)
 }
 
 -- // Functions
@@ -239,6 +250,31 @@ local function removeRoomLights(Room: Model): ()
     Room:SetAttribute("Ambient", Color3.fromRGB(0, 0, 0))
 end
 
+local function convertHelpfulLight(Light: Part, Music: Sound): ()
+    local HelpParticle = Light.HelpParticle
+    HelpParticle.Color = ColorSequence.new(Color3.fromRGB(255, 238, 0))
+    HelpParticle.Rate = 10
+    
+    Music.Parent = Light
+    Music.Looped = true
+    Music.RollOffMaxDistance = 100
+    Music.RollOffMinDistance = 0
+    Music.Volume = 0.5
+    Music:Play()
+
+    for _, PointLight: PointLight in Light:GetChildren() do
+        if not PointLight:IsA("PointLight") then
+            continue
+        end
+
+        PointLight.Color = Color3.fromRGB(255, 238, 55)
+        
+        if PointLight.Brightness == 11 then
+            PointLight.Brightness = 1
+        end
+    end
+end
+
 --// Functionality (wink wink get it!!)
 
 local PlaceId = game.PlaceId
@@ -266,6 +302,8 @@ if LatestRoom.Value ~= 0 then
         5
     )
 end
+
+_G.ExecutedHorror = true
 
 -- Await Game Start
 
@@ -307,14 +345,29 @@ end
 
 -- Entities
 
-local function whisper(SpawnDistance: number, ChaseDuration: number): ()
+local EntityStorage = Instance.new("Folder", ReplicatedStorage); EntityStorage.Name = "HorrorModeEntities"
+local WhisperEntityBase = game:GetObjects("rbxassetid://90061066167445")[1]; WhisperEntityBase.Parent = EntityStorage
+local SpecterEntityBase = game:GetObjects("rbxassetid://125103851470017")[1]; SpecterEntityBase.Parent = EntityStorage
+
+local CuriousHumm = getGitSoundId("https://github.com/ChronoAcceleration/Comet-Development/blob/main/Doors/Assets/Horror/Curious%20Humm.mp3?raw=true", "CuriousHumm")
+CuriousHumm.Parent = SoundService
+
+-- Hotfixes
+
+pcall(function(): ()
+    SpecterEntityBase.Spawn.Playing = false
+end)
+
+-- Hotfixes End
+
+local function whisper(SpawnDistance: number, ChaseDuration: number, GracePeriod: number): ()
     local PlayerCharacter = Player.Character
     local CharacterRoot = PlayerCharacter.HumanoidRootPart
     local CharacterCFrame = PlayerCharacter:GetPivot()
     local CharacterBack = CharacterCFrame.LookVector * -1
     local SpawnPosition = CharacterCFrame.Position + CharacterBack * SpawnDistance
-
-    local WhisperEntity = game:GetObjects("rbxassetid://90061066167445")[1]
+    
+    local WhisperEntity = WhisperEntityBase:Clone()
     local WhisperRig = WhisperEntity.Rig
     local WhisperBreathing = WhisperRig.Breathing
     local WhisperParticles = WhisperRig.Attachment
@@ -329,8 +382,8 @@ local function whisper(SpawnDistance: number, ChaseDuration: number): ()
     WhisperRig.Anchored = false
 
     local Movement = Instance.new("BodyPosition", WhisperRig)
-    Movement.D = 1000
-    Movement.P = 4000
+    Movement.D = 1500
+    Movement.P = 3000
     Movement.MaxForce = Vector3.new(1000, 250000, 1000)
 
     WhisperBreathing:Play()
@@ -350,6 +403,8 @@ local function whisper(SpawnDistance: number, ChaseDuration: number): ()
 
     local DeathCheck = task.spawn(
         function(): ()
+            SyncHelper:deltaWait(GracePeriod)
+
             while true do
                 if TargetDistance <= 13 then
                     runGuidingLight(
@@ -389,23 +444,118 @@ local function whisper(SpawnDistance: number, ChaseDuration: number): ()
     Debris:AddItem(WhisperEntity, 5)
 end
 
+local function wailingSpecter(Duration: number): ()
+    local SpecterEntity = SpecterEntityBase:Clone()
+    local SpawnSound = SpecterEntity.Spawn; SpawnSound.Volume = 3
+    local ColorCorrection = Lighting.MainColorCorrection
+
+    local function getRandomPlaybackSpeed(): number
+        return math.random() * (1.8 - 0.3) + 0.3
+    end
+
+    local function variatePlaybackSpeed(Speed: number): ()
+        local PlaybackTween = TweenService:Create(
+            SpawnSound,
+            TweenInfo.new(0.05, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out),
+            {
+                PlaybackSpeed = Speed
+            }
+        )
+
+        PlaybackTween:Play()
+    end
+
+    local CurrentRoom = fetchCurrentRoom(LatestRoom.Value, CurrentRooms)
+    local RoomEntrance = CurrentRoom.RoomEntrance
+    assert(RoomEntrance, "RoomEnd is nil! This is not awesome sauce.")
+
+    LatestRoom:GetPropertyChangedSignal("Value"):Wait()
+
+    local ColorCorrectionVariate = task.spawn(
+        function(): ()
+            while true do
+                local newBrightness = math.random() * (0.1 - 0.01) + 0.01
+                local newContrast = math.random() * (0.1 - 0.01) + 0.01
+                local newSaturation = math.random() * (0.3 - 0.1) + 0.1
+                local newTint = Color3.fromRGB(math.random(200, 255), math.random(200, 255), math.random(200, 255))
+    
+                TweenService:Create(ColorCorrection, TweenInfo.new(0.05, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                    Brightness = newBrightness,
+                    Contrast = newContrast,
+                    Saturation = newSaturation,
+                    TintColor = newTint
+                }):Play()
+    
+                task.wait(0.05)
+            end
+        end
+    )
+
+    local PlaybackSpeedVariate = task.spawn(
+        function(): ()
+            while true do
+                variatePlaybackSpeed(getRandomPlaybackSpeed())
+                task.wait(.05)
+            end
+        end
+    )
+
+    local SpecterSpawnPosition = RoomEntrance.Position + RoomEntrance.CFrame.LookVector * 10
+    SpecterEntity.Parent = workspace
+    SpecterEntity:PivotTo(CFrame.new(SpecterSpawnPosition))
+    SpawnSound:Play()
+
+    SyncHelper:deltaWait(Duration)
+    task.cancel(PlaybackSpeedVariate)
+    task.cancel(ColorCorrectionVariate)
+
+    task.spawn(
+        function(): ()
+            SyncHelper:deltaWait(1)
+            ColorCorrection.Brightness = DEFAULT_COLOR_CORRECTION_VALUES.Brightness
+            ColorCorrection.Contrast = DEFAULT_COLOR_CORRECTION_VALUES.Contrast
+            ColorCorrection.Saturation = DEFAULT_COLOR_CORRECTION_VALUES.Saturation
+            ColorCorrection.TintColor = DEFAULT_COLOR_CORRECTION_VALUES.Tint
+        end
+    )
+
+    SpecterEntity:Destroy()
+end
+
 local function spawnEntity(): ()
-    local EntityChance = SyncHelper:generateRandom(1, 25, LatestRoom.Value)
-    local DelayTime = SyncHelper:generateRandom(5, 15, LatestRoom.Value)
+    local EntityChance = SyncHelper:generateRandom(1, 100, LatestRoom.Value)
+    print(EntityChance)
 
-    SyncHelper:deltaWait(DelayTime)
-
-    if EntityChance >= 15 then
-        print("Not spawning an entity!")
+    if EntityChance > 15 then
         return
     end
 
-    local Entity = 1
+    local Entity = SyncHelper:generateFullRandom(1, 2, LatestRoom.Value)
     if Entity == 1 then
         if Workspace:FindFirstChild("WhisperNew") then
             return
         end
-        whisper(SyncHelper:generateRandom(20, 40, LatestRoom.Value), SyncHelper:generateRandom(15, 30, LatestRoom.Value))
+
+        task.spawn(
+            function(): ()
+                local DelayTime = SyncHelper:generateRandom(0, 15, LatestRoom.Value)
+                SyncHelper:deltaWait(DelayTime)
+
+                whisper(
+                    SyncHelper:generateRandom(20, 45, LatestRoom.Value),
+                    SyncHelper:generateRandom(10, 20, LatestRoom.Value),
+                    SyncHelper:generateRandom(2, 4, LatestRoom.Value)
+                )
+            end
+        )
+    elseif Entity == 2 then
+        task.spawn(
+            function(): ()
+                wailingSpecter(
+                    SyncHelper:generateRandom(0.5, 1, LatestRoom.Value)
+                )
+            end
+        )
     end
 end
 
@@ -413,3 +563,11 @@ end
 
 CurrentRooms.ChildAdded:Connect(removeRoomLights)
 CurrentRooms.ChildAdded:Connect(spawnEntity)
+
+CurrentRooms.DescendantAdded:Connect(
+    function(Asset: Instance): ()
+        if Asset.Name == "HelpfulLight" then
+            convertHelpfulLight(Asset, CuriousHumm:Clone())
+        end
+    end
+)
