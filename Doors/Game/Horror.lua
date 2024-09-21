@@ -19,6 +19,7 @@ local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
 local Lighting = game:GetService("Lighting")
 local TextChatService = game:GetService("TextChatService")
+local Workspace = game:GetService("Workspace")
 
 local LIGHTING_KEYWORDS = {
     "Light_Fixtures",
@@ -52,34 +53,16 @@ local function fetchCurrentRoom(Room: number, CurrentRooms: Folder): Model?
     return Room
 end
 
-local function getGithubSound(GithubSound: string, SoundName: string): string
-    local GithubUrl = GithubSound
-    local FileName = tostring(SoundName)
-    local FolderName = "Comet-Development"
-    local Path = string.format("%s/Audio/%s.mp3", FolderName, FileName)
+local function getGitSoundId(GithubSoundPath: string, AssetName: string): Sound
+    local Url = GithubSoundPath
 
-    if not isfolder(FolderName) then
-        makefolder(FolderName)
+    if not isfile(AssetName..".mp3") then 
+        writefile(AssetName..".mp3", game:HttpGet(Url)) 
     end
-    
-    writefile(Path, game:HttpGet(GithubUrl))
-    
-    return (getcustomasset or getsynasset)(Path)
-end
 
-local function wrapGithubSound(Asset: string, Parent: Instance): Sound
-    local WrapperSound = Instance.new("Sound")
-    WrapperSound.SoundId = Asset
-    WrapperSound.Parent = Parent or SoundService
-
-    task.spawn(
-        function(): ()
-            WrapperSound.Ended:Wait()
-            WrapperSound:Destroy()
-        end
-    )
-
-    return WrapperSound
+    local Sound = Instance.new("Sound")
+    Sound.SoundId = (getcustomasset or getsynasset)(AssetName..".mp3")
+    return Sound 
 end
 
 local function displaySystemMessage(Message, Color): ()
@@ -89,19 +72,24 @@ local function displaySystemMessage(Message, Color): ()
     RBXGeneral:DisplaySystemMessage(string.format('<font color="rgb(%d, %d, %d)">%s</font>', Color.R, Color.G, Color.B, Message))
 end
 
+local function runGuidingLight(Text: table, Type: string): ()
+    local RemotesFolder = ReplicatedStorage.RemotesFolder
+    local DeathHint = RemotesFolder.DeathHint
+
+    firesignal(DeathHint.OnClientEvent, Text, Type)
+end
+
 local function changeDeathCause(Cause: string, Player: Player): ()
     local Character = Player.Character
-    local Humanoid = Character:WaitForChild("Humanoid")
-    Humanoid:TakeDamage(Humanoid.Health)
+    local Humanoid = Character.Humanoid
 
-    task.wait(1)
+    local GameStats = ReplicatedStorage.GameStats
+    local PlayerStats = GameStats[string.format("Player_%s", Player.Name)]
+    local Total = PlayerStats.Total
+    local DeathCause = Total.DeathCause
 
-    local PlayerUI = Player.PlayerGui
-    local MainUI = PlayerUI.MainUI
-    local Statistics = MainUI.Statistics
-    local Death = Statistics.Death
-
-    Death.Text = string.format("You died to %s", Cause)
+    DeathCause.Value = Cause
+    Humanoid:TakeDamage(100)
 end
 
 local function toggleLights(room, turnOn, ambientColor): () -- LSPlash Code!
@@ -290,13 +278,15 @@ do
     
     local Success, Return = pcall(
         function(): ()
-            local StartSound = getGithubSound("https://github.com/ChronoAcceleration/Comet-Development/raw/refs/heads/main/Doors/Assets/Horror/CourtyardEntry.mp3", "HorrorBeginChime")
-            local StartSoundInstance = wrapGithubSound(StartSound, SoundService)
-            
+            local StartSound = getGitSoundId("https://github.com/ChronoAcceleration/Comet-Development/blob/main/Doors/Assets/Horror/CourtyardEntry.mp3?raw=true", "HorrorBeginChime")
+            StartSound.Parent = SoundService
+
             task.delay(
                 .5,
                 function(): ()
-                    StartSoundInstance:Play()
+                    StartSound:Play()
+                    StartSound.Ended:Wait()
+                    StartSound:Destroy()
                 end
             )
         end
@@ -332,17 +322,23 @@ local function whisper(SpawnDistance: number, ChaseDuration: number): ()
     WhisperEntity.Parent = workspace
     WhisperEntity:PivotTo(CFrame.new(SpawnPosition))
 
+    WhisperEntity.Name = "WhisperNew"
     WhisperRig.CanCollide = false
     WhisperRig.CanTouch = false
     WhisperRig.CanQuery = false
     WhisperRig.Anchored = false
 
     local Movement = Instance.new("BodyPosition", WhisperRig)
-    Movement.D = 2000
-    Movement.P = 5000
-    Movement.MaxForce = Vector3.new(2000, 250000, 2000)
+    Movement.D = 1000
+    Movement.P = 4000
+    Movement.MaxForce = Vector3.new(1000, 250000, 1000)
 
     WhisperBreathing:Play()
+    WhisperBreathing.Volume = 0
+    TweenService:Create(WhisperBreathing, TweenInfo.new(2, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+        Volume = 1
+    }):Play()
+
     local TargetDistance = (CharacterRoot.Position - WhisperRig.Position).Magnitude
     
     local MovementUpdate = RunService.Heartbeat:Connect(
@@ -355,8 +351,21 @@ local function whisper(SpawnDistance: number, ChaseDuration: number): ()
     local DeathCheck = task.spawn(
         function(): ()
             while true do
-                if TargetDistance <= 30 then
-                    changeDeathCause("The Whisper", Player)
+                if TargetDistance <= 13 then
+                    runGuidingLight(
+                        {
+                            "Oh.. Hello.",
+                            "I thought I wouldn't see you here.", 
+                            "The Guiding Celestial is not here with us at the moment.", 
+                            "They were.. busy fixing some important deals with the lighting.",
+                            "Let's just get to the point.",
+                            "The thing is pretty quiet, so we can call it Whisper.",
+                            "Now normally, it wouldn't be an issue--But as for now.. you just have to avoid them.",
+                            "Stay as far away from them!"
+                        },
+                        "Yellow"
+                    )
+                    changeDeathCause("Whisper", Player)
                     break
                 end
                 task.wait(.1)
@@ -380,7 +389,7 @@ local function whisper(SpawnDistance: number, ChaseDuration: number): ()
     Debris:AddItem(WhisperEntity, 5)
 end
 
-local function spawnEntity()
+local function spawnEntity(): ()
     local EntityChance = SyncHelper:generateRandom(1, 25, LatestRoom.Value)
     local DelayTime = SyncHelper:generateRandom(5, 15, LatestRoom.Value)
 
@@ -393,6 +402,9 @@ local function spawnEntity()
 
     local Entity = 1
     if Entity == 1 then
+        if Workspace:FindFirstChild("WhisperNew") then
+            return
+        end
         whisper(SyncHelper:generateRandom(20, 40, LatestRoom.Value), SyncHelper:generateRandom(15, 30, LatestRoom.Value))
     end
 end
