@@ -809,7 +809,8 @@ CurrentRooms.DescendantAdded:Connect(
 
 task.spawn(
 	function(): ()
-		while SyncHelper:deltaWait(SyncHelper:generateRandom(30, 60, LatestRoom.Value)) do
+		while true do
+			SyncHelper:deltaWait(SyncHelper:generateRandom(30, 60, LatestRoom.Value))
 			local SpecterSpawnChance = SyncHelper:generateFullRandom(1, 100, LatestRoom.Value)
 
 			if SpecterSpawnChance ~= 1 then
