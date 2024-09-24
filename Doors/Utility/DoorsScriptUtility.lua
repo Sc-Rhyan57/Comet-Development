@@ -4,7 +4,7 @@ This is my first OOP script in a while, so please excuse any mistakes I make.
 This is designed to help you create any custom **MODIFICATION** to the game, such as turning off the lights in a room when it's opened.
 -- Chrono @ Comet Development
 
-CURRENTLY BEING DEVELOPED
+CURRENTLY UNDER DEVELOPMENT
 
 --]]
 
@@ -29,7 +29,8 @@ function RoomHook:new()
     return meta
 end
 
-function RoomHook:on(event, callback)
+function RoomHook:On(event, callback)
+    event = string.lower(event)
     if not self.events[event] then
         self.events[event] = {}
     end
@@ -37,6 +38,7 @@ function RoomHook:on(event, callback)
 end
 
 local function triggerRoomHook(event, ...)
+    event = string.lower(event)
     if RoomHook.events[event] then
         for _, callback in ipairs(RoomHook.events[event]) do
             callback(...)
@@ -49,7 +51,7 @@ Player:GetAttributeChangedSignal("CurrentRoom"):Connect(
         local CurrentRoom = Player:GetAttribute("CurrentRoom")
         local RoomModel = CurrentRooms:FindFirstChild(tostring(CurrentRoom))
         assert(RoomModel, "Room " .. tostring(CurrentRoom) .. " does not exist.")
-        return triggerRoomHook("currentPlayerRoom", RoomModel)
+        return triggerRoomHook("PlayerRoomChanged", RoomModel)
     end
 )
 
@@ -57,7 +59,7 @@ LatestRoom.Changed:Connect(
     function(): ()
         local RoomModel = CurrentRooms:FindFirstChild(tostring(LatestRoom.Value))
         assert(RoomModel, "Room " .. tostring(LatestRoom.Value) .. " does not exist.")
-        return triggerRoomHook("currentServerRoom", RoomModel)
+        return triggerRoomHook("ServerRoomChanged", RoomModel)
     end
 )
 
@@ -67,12 +69,13 @@ EntityHook = {}
 EntityHook.__index = EntityHook
 
 function EntityHook:new()
-    local meta = setmetatable({}, RoomHook)
+    local meta = setmetatable({}, EntityHook)
     meta.events = {}
     return meta
 end
 
-function EntityHook:on(event, callback)
+function EntityHook:On(event, callback)
+    event = string.lower(event)
     if not self.events[event] then
         self.events[event] = {}
     end
@@ -80,6 +83,7 @@ function EntityHook:on(event, callback)
 end
 
 local function triggerEntityHook(event, ...)
+    event = string.lower(event)
     if EntityHook.events[event] then
         for _, callback in ipairs(EntityHook.events[event]) do
             callback(...)
