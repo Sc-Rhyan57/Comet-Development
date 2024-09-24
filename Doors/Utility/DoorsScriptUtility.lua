@@ -37,6 +37,24 @@ function RoomHook:On(event, callback)
     table.insert(self.events[event], callback)
 end
 
+function RoomHook:Wait(event)
+    event = string.lower(event)
+    local bindableEvent = Instance.new("BindableEvent")
+    
+    local function callback(...)
+        bindableEvent:Fire(...)
+    end
+    
+    self:On(event, callback)
+    bindableEvent.Event:Once(
+        function(): ()
+            bindableEvent:Destroy()
+        end
+    )
+    
+    return bindableEvent.Event:Wait()
+end
+
 local function triggerRoomHook(event, ...)
     event = string.lower(event)
     if RoomHook.events[event] then
