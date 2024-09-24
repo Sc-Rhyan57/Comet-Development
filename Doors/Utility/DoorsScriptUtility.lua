@@ -23,7 +23,7 @@ local CurrentCamera = workspace.CurrentCamera
 RoomHook = {}
 RoomHook.__index = RoomHook
 
-function RoomHook:new()
+function RoomHook:New()
     local meta = setmetatable({}, RoomHook)
     meta.events = {}
     return meta
@@ -68,7 +68,7 @@ LatestRoom.Changed:Connect(
 EntityHook = {}
 EntityHook.__index = EntityHook
 
-function EntityHook:new()
+function EntityHook:New()
     local meta = setmetatable({}, EntityHook)
     meta.events = {}
     return meta
@@ -129,9 +129,21 @@ CurrentCamera.ChildAdded:Connect(
     end
 )
 
+-- // Useful Functions \\ --
+
+QuickFunctions = {}
+
+function QuickFunctions:GetRoom(Room: any): Model
+    local RoomName = tostring(Room)
+    local RoomModel = CurrentRooms:FindFirstChild(RoomName)
+
+    return RoomModel
+end
+
 -- // Return \\ --
 
 return {
     RoomHook = RoomHook,
-    EntityHook = EntityHook
+    EntityHook = EntityHook,
+    QuickFunctions = QuickFunctions
 }
