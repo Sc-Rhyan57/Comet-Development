@@ -132,21 +132,6 @@ CurrentCamera.ChildAdded:Connect(
 -- // Return \\ --
 
 return {
-    RoomHelper = RoomHook,
+    RoomHook = RoomHook,
     EntityHook = EntityHook
 }
-
---[[
-
--- Example usage
-local helper = RoomHook:new()
-
--- Register an event
-helper:on("roomOpened", function(roomNumber)
-    print("Room " .. roomNumber .. " has been opened.")
-end)
-
--- Trigger the event
-helper:trigger("roomOpened", 101)
-
---]]
