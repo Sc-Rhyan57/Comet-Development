@@ -34,7 +34,7 @@ local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 
 local SoundService = game:GetService("SoundService")
-SoundService.VolumetricAudio = Enum.VolumetricAudio.Enabled -- i actually dont know if this works lol
+-- SoundService.VolumetricAudio = Enum.VolumetricAudio.Enabled i actually dont know if this works lol (it doesnt)
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
