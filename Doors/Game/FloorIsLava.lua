@@ -17,14 +17,15 @@ local QuickFunctions = HookHelper.QuickFunctions
 local BURN_CONFIGURATION = {
     ["InitialSoundCooldown"] = 5,
     ["BurnDamage"] = 15,
-    ["DamagePerSecond"] = 2.5
+    ["DamagePerSecond"] = 2.5,
+    ["LockedRoomGracePeriod"] = 10
 }
 
 -- Variables
 
 -- [Lava]
 
-local LavaRiseOffset = 0.001
+local LavaRiseOffset = 0.0035
 local LavaRising = false
 
 -- [Other]
@@ -325,5 +326,27 @@ RoomHook:On(
                 notify("Lava has returned down!")
             end
         end
+    end
+)
+
+RoomHook.On(
+    "LockedRoom",
+    function()
+        if _G.DEBUG_LAVA then
+            notify("Locked room detected, grace period active!")
+        end
+
+        LavaRiseOffset = 0.001
+
+        task.delay(
+            BURN_CONFIGURATION.LockedRoomGracePeriod,
+            function(): ()
+                if _G.DEBUG_LAVA then
+                    notify("Grace period has ended!")
+                end
+
+                LavaRiseOffset = 0.0035
+            end
+        )
     end
 )
