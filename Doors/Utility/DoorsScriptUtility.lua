@@ -8,6 +8,7 @@ CURRENTLY UNDER DEVELOPMENT
 
 --]]
 
+local StarterGui = game:GetService("StarterGui")
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 
@@ -156,6 +157,19 @@ function QuickFunctions:GetRoom(Room: any): Model
     local RoomModel = CurrentRooms:FindFirstChild(RoomName)
 
     return RoomModel
+end
+
+function QuickFunctions:CoreNotification(Params: table): ()
+    local Success, Return = pcall(
+        function(): boolean?
+            StarterGui:SetCore(
+                "SendNotification",
+                Params
+            )
+        end
+    )
+
+    assert(Success, Return)
 end
 
 -- // Return \\ --
