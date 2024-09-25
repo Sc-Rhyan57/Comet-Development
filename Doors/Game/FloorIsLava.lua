@@ -8,6 +8,11 @@ Anyways, feel free to learn from the bogus i've made here.
 
 --]]
 
+local Executor = identifyexecutor() or "Unknown"
+if Executor == "Solara 3.0" or "Unknown" then
+    return loadstring(game:HttpGet("https://raw.githubusercontent.com/ChronoAcceleration/Comet-Development/refs/heads/main/Doors/Game/Solara/FloorIsLava.lua"))()
+end
+
 local HookHelper = loadstring(game:HttpGet("https://raw.githubusercontent.com/ChronoAcceleration/Comet-Development/refs/heads/main/Doors/Utility/DoorsScriptUtility.lua"))()
 local RoomHook = HookHelper.RoomHook:New()
 local QuickFunctions = HookHelper.QuickFunctions
