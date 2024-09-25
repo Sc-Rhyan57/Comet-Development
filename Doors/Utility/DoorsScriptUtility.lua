@@ -78,7 +78,8 @@ end
 local function triggerRoomHook(event, ...)
     local event_Lowered = string.lower(event)
     if RoomHook.events[event_Lowered] then
-        for _, callback in ipairs(RoomHook.events[event_Lowered]) do
+        for _, callback in ipairs(RoomHook.events[event_Lowered]) do 
+            print(callback, _)
             callback(...)
         end
     end
