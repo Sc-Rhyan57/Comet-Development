@@ -31,30 +31,30 @@ function RoomHook:New()
 end
 
 function RoomHook:On(event, callback)
-    event = string.lower(event)
-    if not self.events[event] then
-        self.events[event] = {}
+    local event_Lowered = string.lower(event)
+    if not self.events[event_Lowered] then
+        self.events[event_Lowered] = {}
     end
-    table.insert(self.events[event], callback)
+    table.insert(self.events[event_Lowered], callback)
 end
 
 function RoomHook:Once(event, callback)
-    event = string.lower(event)
-    if not self.events[event] then
-        self.events[event] = {}
+    local event_Lowered = string.lower(event)
+    if not self.events[event_Lowered] then
+        self.events[event_Lowered] = {}
     end
 
     local function onceCallback(...)
         callback(...)
-        for i, cb in ipairs(self.events[event]) do
+        for i, cb in ipairs(self.events[event_Lowered]) do
             if cb == onceCallback then
-                table.remove(self.events[event], i)
+                table.remove(self.events[event_Lowered], i)
                 break
             end
         end
     end
 
-    table.insert(self.events[event], onceCallback)
+    table.insert(self.events[event_Lowered], onceCallback)
 end
 
 function RoomHook:Wait(event)
@@ -76,9 +76,9 @@ function RoomHook:Wait(event)
 end
 
 local function triggerRoomHook(event, ...)
-    event = string.lower(event)
-    if RoomHook.events[event] then
-        for _, callback in ipairs(RoomHook.events[event]) do
+    local event_Lowered = string.lower(event)
+    if RoomHook.events[event_Lowered] then
+        for _, callback in ipairs(RoomHook.events[event_Lowered]) do
             callback(...)
         end
     end
@@ -113,17 +113,17 @@ function EntityHook:New()
 end
 
 function EntityHook:On(event, callback)
-    event = string.lower(event)
-    if not self.events[event] then
-        self.events[event] = {}
+    local event_Lowered = string.lower(event)
+    if not self.events[event_Lowered] then
+        self.events[event_Lowered] = {}
     end
-    table.insert(self.events[event], callback)
+    table.insert(self.events[event_Lowered], callback)
 end
 
 local function triggerEntityHook(event, ...)
-    event = string.lower(event)
-    if EntityHook.events[event] then
-        for _, callback in ipairs(EntityHook.events[event]) do
+    local event_Lowered = string.lower(event)
+    if EntityHook.events[event_Lowered] then
+        for _, callback in ipairs(EntityHook.events[event_Lowered]) do
             callback(...)
         end
     end
