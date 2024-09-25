@@ -25,6 +25,7 @@ RoomHook = {}
 RoomHook.__index = RoomHook
 
 local CurrentRoomHooks = {}
+local CurrentEntityHooks = {}
 
 function RoomHook:New()
     local meta = setmetatable({}, RoomHook)
@@ -80,7 +81,6 @@ end
 
 local function triggerRoomHook(event, ...)
     for _, Hook in ipairs(CurrentRoomHooks) do
-        print(getmetatable(Hook))
         local event_Lowered = string.lower(event)
         if Hook.events[event_Lowered] then
             for _, callback in ipairs(Hook.events[event_Lowered]) do 
@@ -117,6 +117,7 @@ EntityHook.__index = EntityHook
 function EntityHook:New()
     local meta = setmetatable({}, EntityHook)
     meta.events = {}
+    table.insert(CurrentEntityHooks, meta)
     return meta
 end
 
@@ -129,10 +130,12 @@ function EntityHook:On(event, callback)
 end
 
 local function triggerEntityHook(event, ...)
-    local event_Lowered = string.lower(event)
-    if EntityHook.events[event_Lowered] then
-        for _, callback in ipairs(EntityHook.events[event_Lowered]) do
-            callback(...)
+    for _, Hook in ipairs(CurrentEntityHooks) do
+        local event_Lowered = string.lower(event)
+        if Hook.events[event_Lowered] then
+            for _, callback in ipairs(Hook.events[event_Lowered]) do 
+                callback(...)
+            end
         end
     end
 end
