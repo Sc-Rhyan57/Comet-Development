@@ -59,7 +59,7 @@ end
 
 function RoomHook:Wait(event)
     event = string.lower(event)
-    local bindableEvent = Instance.new("BindableEvent")
+    local bindableEvent = Instance.new("BindableEvent", ReplicatedStorage)
     
     local function callback(...)
         bindableEvent:Fire(...)
