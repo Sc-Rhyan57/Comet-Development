@@ -329,7 +329,7 @@ RoomHook:On(
     end
 )
 
-RoomHook.On(
+RoomHook:On(
     "LockedRoom",
     function()
         if _G.DEBUG_LAVA then
