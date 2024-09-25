@@ -24,7 +24,7 @@ local BURN_CONFIGURATION = {
 
 -- [Lava]
 
-local LavaRiseOffset = 0.1
+local LavaRiseOffset = 0.5
 local LavaRising = false
 
 -- [Other]
