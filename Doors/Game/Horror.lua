@@ -53,6 +53,30 @@ local NODE_PARAMETERS = {
 	AgentRadius = 5
 }
 
+local STORE_VALUES = {}
+local AMBIENCE_SOUNDS = {
+    {
+        9126214611,
+        {
+           ["Volume"] = 1,
+           ["Pitch"] = 0.9
+        }
+    },
+    {
+        9043347465,
+        {
+           ["Volume"] = 0.3
+        }
+    },
+    {
+       8202539690,
+       {
+           ["Volume"] = 1,
+           ["Pitch"] = 0.2
+        }
+    }
+}
+
 -- // Functions
 
 local function runCoreCall(ITitle: string, IText: string, IDuration: number): ()
@@ -376,6 +400,7 @@ local GameData: Folder = ReplicatedStorage:WaitForChild("GameData")
 local LatestRoom: NumberValue = GameData:WaitForChild("LatestRoom")
 local CurrentRooms: Folder = workspace:WaitForChild("CurrentRooms")
 local Player: Player = Players.LocalPlayer
+local Camera: Camera = workspace.CurrentCamera
 
 local ENTITY_SPAWN_AFTER = SyncHelper:generateRandom(5, 9, 1)
 
@@ -439,6 +464,7 @@ CuriousHumm.Parent = SoundService
 
 -- Hotfixes
 
+local WRAITH_SPAWNED = false
 pcall(function(): ()
 	SpecterEntityBase.Spawn.Playing = false
 
@@ -447,6 +473,32 @@ pcall(function(): ()
 end)
 
 -- Hotfixes End
+
+local function runSoundAsAmbience(SoundId: string, Properties): ()
+     local RandomX = SyncHelper:generateRandom(-300, 300, LatestRoom.Value)
+     local RandomZ = SyncHelper:generateRandom(-300, 300, LatestRoom.Value)
+     
+     local Attachment = Instance.new("Attachment", Camera)
+     Attachment.Position += Vector3.new(RandomX, 1, RandomZ)
+     
+     local Sound = Instance.new("Sound")
+     
+     for PropertyIndex, PropertyValue in pairs(Properties) do
+          pcall(function()
+               Sound[PropertyIndex] = PropertyValue
+          end)
+     end
+     
+     Sound.Parent = Attachment
+     Sound.SoundId = SoundId
+     Sound.RollOffMaxDistance = math.huge
+     Sound.RollOffMinDistance = math.huge
+     Sound:Play()
+     
+     Sound.Ended:Wait()
+     
+     Attachment:Destroy()
+end
 
 local function whisper(SpawnDistance: number, ChaseDuration: number, GracePeriod: number): ()
 	local PlayerCharacter = Player.Character
@@ -533,13 +585,19 @@ local function whisper(SpawnDistance: number, ChaseDuration: number, GracePeriod
 end
 
 local function wraith(Anger: number)
+     if WRAITH_SPAWNED then
+        return
+     end
 	local Times = 0
 	local function SpawnWraith(Times)
+    	WRAITH_SPAWNED = true
 		if Times > 3 then
+		    WRAITH_SPAWNED = false
 			return
 		end
 		Times += 1
 
+        local AngerSpeed = math.clamp((Anger * 2) / 3, 0, 50)
 		local WraithEntity = WraithEntityBase:Clone()
 		WraithEntity.Parent = Workspace
 
@@ -548,17 +606,28 @@ local function wraith(Anger: number)
 			WraithEntity.Spawn:Play();
 		end
 
-		WraithEntity.SpawnAmbience.Volume += 6
+		WraithEntity.SpawnAmbience.Volume += 7
 		WraithEntity.SpawnAmbience:Play()
 
 		local SpawnEffect = Instance.new("ColorCorrectionEffect", Lighting); SpawnEffect.Saturation = 10; SpawnEffect.Brightness = -10
 		TweenService:Create(SpawnEffect, TweenInfo.new(0.345, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {Brightness = 0, Saturation = 3, TintColor = Color3.fromRGB(128,128,128)}):Play()
 
-		SyncHelper:deltaWait(2)
+		SyncHelper:deltaWait(4)
 		
-		WraithEntity.WraithNew.PlaySound:Play()
-		WraithEntity.WraithNew.PlaySound2:Play()
-
+		for _,v in pairs(WraithEntity.WraithNew:GetChildren()) do
+		     if v:IsA("Sound") then
+		         local PitchProperty = v.Pitch
+	         	v.Pitch = 0
+	             if table.find(STORE_VALUES, v) then
+	                  v.TimePosition = STORE_VALUES[v]
+	             else
+	                  v.TimePosition = 0
+	             end
+	             v:Play()
+	             TweenService:Create(v, TweenInfo.new(1), {Pitch = PitchProperty}):Play()
+	         end
+		end
+	
 		local LastRoom = fetchCurrentRoom(LatestRoom.Value + 1, CurrentRooms)
 		assert(LastRoom, "Last room is nil! This aint good..")
 		local RoomExit = LastRoom.RoomExit
@@ -633,12 +702,12 @@ local function wraith(Anger: number)
 						local Node = Nodes:FindFirstChild(NodeIndex)
 
 						if Node then
-							DragEntity(WraithEntity, Node.CFrame * CFrame.new(0, 2, 0), 100)
+							DragEntity(WraithEntity, Node.CFrame * CFrame.new(0, 4, 0), 100 + AngerSpeed)
 						end
 					end
 				end
 
-				DragEntity(WraithEntity, Room.RoomEntrance.CFrame, 100)
+				DragEntity(WraithEntity, Room.RoomEntrance.CFrame, 100 + AngerSpeed)
 			end
 		end
 
@@ -652,6 +721,7 @@ local function wraith(Anger: number)
 
 		for _,v in pairs(WraithEntity:GetDescendants()) do
 			if v:IsA("Sound") then
+			    STORE_VALUES[v] = v.TimePosition
 				TweenService:Create(v, TweenInfo.new(2), {Pitch = 0, Volume = 10}):Play()
 			end
 		end
@@ -758,7 +828,10 @@ local function spawnEntity(): ()
 
 	local Entity = SyncHelper:generateFullRandom(1, 2, LatestRoom.Value)
 	if Entity == 1 then
-		if Workspace:FindFirstChild("WhisperNew") then
+		if Workspace:FindFirstChild("Whisper") then
+			return
+		end
+		if Workspace:FindFirstChild("Wraith") then
 			return
 		end
 
@@ -785,7 +858,7 @@ local function spawnEntity(): ()
 				LatestRoom:GetPropertyChangedSignal("Value"):Wait() -- wait for the next room
 				SyncHelper:deltaWait(.25)
 
-				wraith()
+				wraith(LatestRoom.Value)
 			end
 		)
 	end
@@ -810,8 +883,19 @@ CurrentRooms.DescendantAdded:Connect(
 task.spawn(
 	function(): ()
 		while true do
+		  	SyncHelper:deltaWait(SyncHelper:generateRandom(20, 90, LatestRoom.Value))
+		
+			  local AmbienceSound = AMBIENCE_SOUNDS[math.random(1,#AMBIENCE_SOUNDS)]
+			  runSoundAsAmbience(AmbienceSound[1], AmbienceSound[2])
+		end
+	end
+)
+
+task.spawn(
+	function(): ()
+		while true do
 			SyncHelper:deltaWait(SyncHelper:generateRandom(30, 60, LatestRoom.Value))
-			local SpecterSpawnChance = SyncHelper:generateFullRandom(1, 100, LatestRoom.Value)
+			local SpecterSpawnChance = SyncHelper:generateFullRandom(1, 75, LatestRoom.Value)
 
 			if SpecterSpawnChance ~= 1 then
 				return
