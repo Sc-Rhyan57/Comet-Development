@@ -24,17 +24,17 @@ local BURN_CONFIGURATION = {
 
 -- [Lava]
 
-local LavaRiseOffset = 0.05
+local LavaRiseOffset = 0.001
 local LavaRising = false
 
 -- [Other]
 
+local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
-
 local SoundService = game:GetService("SoundService")
--- SoundService.VolumetricAudio = Enum.VolumetricAudio.Enabled i actually dont know if this works lol (it doesnt)
+-- SoundService.VolumetricAudio = Enum.VolumetricAudio.Enabled // i actually dont know if this works lol (it doesnt)
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -48,6 +48,7 @@ local Humanoid = Character:WaitForChild("Humanoid")
 
 local DoneInitialSound = {}
 local OnBurnCooldown = false
+local CurrentlyModifyingLighting = false
 
 -- Functions
 
@@ -121,6 +122,14 @@ local function createAmbient(Lava: MeshPart): ()
     TweenService:Create(AmbientSecondary, TweenInfo.new(5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Volume = 0.5}):Play()
 end
 
+local function createColorCorrection(): ()
+    local Correction = Instance.new("ColorCorrectionEffect", Lighting)
+    Correction.TintColor = Color3.fromRGB(255, 123, 57)
+    Correction.Enabled = false
+    Correction.Brightness = .1
+    Correction.Name = "LavaCorrection"
+end
+
 local function hookAnimateLava(Lava: MeshPart): () -- Propietary
     local folder = Instance.new('Folder')
     folder.Name = 'LavaValues'
@@ -169,6 +178,48 @@ local function hookAnimateLava(Lava: MeshPart): () -- Propietary
     end
 end
 
+local function modifyLighting(Submerged: boolean, Correction: ColorCorrectionEffect): ()
+    if CurrentlyModifyingLighting then
+        return
+    end
+
+    if Submerged then
+        CurrentlyModifyingLighting = true
+        Correction.Enabled = true
+
+        local LightingTween = TweenService:Create(
+            Lighting,
+            TweenInfo.new(.1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
+            {
+                FogEnd = 75,
+                FogStart = 10,
+                FogColor = Color3.fromRGB(203, 91, 26)
+            }
+        )
+
+        LightingTween:Play()
+        LightingTween.Completed:Wait()
+        CurrentlyModifyingLighting = false
+    else
+        CurrentlyModifyingLighting = true
+        Correction.Enabled = false
+
+        local LightingTween = TweenService:Create(
+            Lighting,
+            TweenInfo.new(.1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut),
+            {
+                FogEnd = 250,
+                FogStart = 150,
+                FogColor = Color3.fromRGB(14, 13, 18)
+            }
+        )
+
+        LightingTween:Play()
+        LightingTween.Completed:Wait()
+        CurrentlyModifyingLighting = false
+    end
+end
+
 local function hookLavaFunction(Lava: MeshPart): ()
     RunService.Heartbeat:Connect(
         function(): ()
@@ -181,6 +232,9 @@ local function hookLavaFunction(Lava: MeshPart): ()
 
             if LavaY >= CharacterY then
                 burnPlayer(LocalPlayer)
+                modifyLighting(true, Lighting.LavaCorrection)
+            else
+                modifyLighting(false, Lighting.LavaCorrection)
             end
         end
     )
@@ -241,11 +295,15 @@ local LavaSpawnLocation = Room0Position - Vector3.new(0, 20, 0)
 local Lava0Point = LavaSpawnLocation.Y
 
 Lava.Position = LavaSpawnLocation
+Lava.SurfaceLight.Range = 10
+Lava.SurfaceLight.Brightness = .85
 Lava.Parent = workspace
 
 createAmbient(Lava)
 hookLavaFunction(Lava)
 task.spawn(hookAnimateLava, Lava)
+createColorCorrection()
+
 CameraModule:ShakeOnce(5, 5, 3, 5, 10, 10)
 LavaRising = true
 
