@@ -76,11 +76,12 @@ function RoomHook:Wait(event)
 end
 
 local function triggerRoomHook(event, ...)
-    print(RoomHook, event, RoomHook.events, RoomHook.events[event])
-    local event_Lowered = string.lower(event)
-    if RoomHook.events[event_Lowered] then
-        for _, callback in ipairs(RoomHook.events[event_Lowered]) do 
-            callback(...)
+    for _, Hook in CurrentRoomHooks do
+        local event_Lowered = string.lower(event)
+        if Hook.events[event_Lowered] then
+            for _, callback in ipairs(Hook.events[event_Lowered]) do 
+                callback(...)
+            end
         end
     end
 end
