@@ -17,7 +17,7 @@ local QuickFunctions = HookHelper.QuickFunctions
 local BURN_CONFIGURATION = {
     ["InitialSoundCooldown"] = 5,
     ["BurnDamage"] = 15,
-    ["DamagePerSecond"] = 2.5,
+    ["DamagePerSecond"] = 3.5,
     ["LockedRoomGracePeriod"] = 10
 }
 
@@ -25,7 +25,7 @@ local BURN_CONFIGURATION = {
 
 -- [Lava]
 
-local LavaRiseOffset = 0.0035
+local LavaRiseOffset = 0.0045
 local LavaRising = false
 
 -- [Other]
@@ -35,11 +35,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local SoundService = game:GetService("SoundService")
+local Players = game:GetService("Players")
 -- SoundService.VolumetricAudio = Enum.VolumetricAudio.Enabled // i actually dont know if this works lol (it doesnt)
 
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
 
+local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer.PlayerGui
 local MainUI = PlayerGui:WaitForChild("MainUI")
 local Initiator = MainUI:WaitForChild("Initiator")
@@ -345,7 +345,7 @@ RoomHook.On(
                     notify("Grace period has ended!")
                 end
 
-                LavaRiseOffset = 0.0035
+                LavaRiseOffset = 0.0045
             end
         )
     end
