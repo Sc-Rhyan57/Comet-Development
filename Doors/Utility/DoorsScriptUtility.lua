@@ -200,6 +200,10 @@ function QuickFunctions:GetRoom(Room: any): Model
     return RoomModel
 end
 
+function QuickFunctions:GetLatestRoom(): number
+    return LatestRoom.Value
+end
+
 function QuickFunctions:CoreNotification(Params: table): ()
     local Success, Return = pcall(
         function(): boolean?
