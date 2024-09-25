@@ -30,7 +30,6 @@ function RoomHook:New()
     local meta = setmetatable({}, RoomHook)
     meta.events = {}
     table.insert(CurrentRoomHooks, meta)
-    print(CurrentRoomHooks, meta, getmetatable(CurrentRoomHooks))
     return meta
 end
 
@@ -81,6 +80,7 @@ end
 
 local function triggerRoomHook(event, ...)
     for _, Hook in ipairs(CurrentRoomHooks) do
+        print(getmetatable(Hook))
         local event_Lowered = string.lower(event)
         if Hook.events[event_Lowered] then
             for _, callback in ipairs(Hook.events[event_Lowered]) do 
