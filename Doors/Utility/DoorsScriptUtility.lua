@@ -4,7 +4,7 @@ This is my first OOP script in a while, so please excuse any mistakes I make.
 This is designed to help you create any custom **MODIFICATION** to the game, such as turning off the lights in a room when it's opened.
 -- Chrono @ Comet Development
 
-CURRENTLY UNDER DEVELOPMENT
+IN DEVELOPMENT
 
 --]]
 
@@ -38,6 +38,25 @@ function RoomHook:On(event, callback)
     table.insert(self.events[event], callback)
 end
 
+function RoomHook:Once(event, callback)
+    event = string.lower(event)
+    if not self.events[event] then
+        self.events[event] = {}
+    end
+
+    local function onceCallback(...)
+        callback(...)
+        for i, cb in ipairs(self.events[event]) do
+            if cb == onceCallback then
+                table.remove(self.events[event], i)
+                break
+            end
+        end
+    end
+
+    table.insert(self.events[event], onceCallback)
+end
+
 function RoomHook:Wait(event)
     event = string.lower(event)
     local bindableEvent = Instance.new("BindableEvent")
@@ -46,7 +65,7 @@ function RoomHook:Wait(event)
         bindableEvent:Fire(...)
     end
     
-    self:On(event, callback)
+    self:Once(event, callback)
     bindableEvent.Event:Once(
         function(): ()
             bindableEvent:Destroy()
