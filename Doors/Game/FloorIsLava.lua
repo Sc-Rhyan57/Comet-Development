@@ -24,7 +24,7 @@ local BURN_CONFIGURATION = {
 
 -- [Lava]
 
-local LavaRiseOffset = 0.5
+local LavaRiseOffset = 1
 local LavaRising = false
 
 -- [Other]
@@ -170,10 +170,10 @@ local function hookAnimateLava(Lava: MeshPart): () -- Propietary
 end
 
 local function hookLavaFunction(Lava: MeshPart): ()
-    RunService.RenderStepped:Connect(
-        function(Delta): ()
+    RunService.Heartbeat:Connect(
+        function(): ()
             if LavaRising then
-                Lava.Position = Lava.Position + Vector3.new(0, LavaRiseOffset * Delta, 0)
+                Lava.Position = Lava.Position + Vector3.new(0, LavaRiseOffset, 0)
             end
 
             local LavaY = Lava.Position.Y
@@ -237,7 +237,7 @@ end
 
 local Room0 = QuickFunctions:GetRoom(0)
 local Room0Position = Room0:GetPivot().Position
-local LavaSpawnLocation = Room0Position - Vector3.new(0, 10, 0)
+local LavaSpawnLocation = Room0Position - Vector3.new(0, 20, 0)
 local Lava0Point = LavaSpawnLocation.Y
 
 Lava.Position = LavaSpawnLocation
@@ -247,6 +247,7 @@ createAmbient(Lava)
 hookLavaFunction(Lava)
 task.spawn(hookAnimateLava, Lava)
 CameraModule:ShakeOnce(5, 5, 3, 5, 10, 10)
+LavaRising = true
 
 RoomHook:On(
     "ServerRoomChanged",
