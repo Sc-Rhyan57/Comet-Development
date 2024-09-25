@@ -104,8 +104,19 @@ LatestRoom.Changed:Connect(
     function(): ()
         local RoomModel = CurrentRooms:FindFirstChild(tostring(LatestRoom.Value))
         assert(RoomModel, "Room " .. tostring(LatestRoom.Value) .. " does not exist.")
+        triggerRoomHook("ServerRoomChanged", RoomModel)
 
-        return triggerRoomHook("ServerRoomChanged", RoomModel)
+        local Door = RoomModel:FindFirstChild("Door")
+        if not Door then
+            return
+        end
+
+        local Lock = Door:FindFirstChild("Lock")
+        if not Lock then
+            return
+        end
+
+        triggerRoomHook("LockedRoom", RoomModel)
     end
 )
 
