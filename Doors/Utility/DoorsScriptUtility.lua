@@ -24,9 +24,13 @@ local CurrentCamera = workspace.CurrentCamera
 RoomHook = {}
 RoomHook.__index = RoomHook
 
+local CurrentRoomHooks = {}
+
 function RoomHook:New()
     local meta = setmetatable({}, RoomHook)
     meta.events = {}
+    table.insert(CurrentRoomHooks, meta)
+    print(CurrentRoomHooks, meta, getmetatable(CurrentRoomHooks))
     return meta
 end
 
@@ -76,7 +80,7 @@ function RoomHook:Wait(event)
 end
 
 local function triggerRoomHook(event, ...)
-    for _, Hook in CurrentRoomHooks do
+    for _, Hook in ipairs(CurrentRoomHooks) do
         local event_Lowered = string.lower(event)
         if Hook.events[event_Lowered] then
             for _, callback in ipairs(Hook.events[event_Lowered]) do 
@@ -91,6 +95,7 @@ Player:GetAttributeChangedSignal("CurrentRoom"):Connect(
         local CurrentRoom = Player:GetAttribute("CurrentRoom")
         local RoomModel = CurrentRooms:FindFirstChild(tostring(CurrentRoom))
         assert(RoomModel, "Room " .. tostring(CurrentRoom) .. " does not exist.")
+
         return triggerRoomHook("PlayerRoomChanged", RoomModel)
     end
 )
@@ -99,6 +104,7 @@ LatestRoom.Changed:Connect(
     function(): ()
         local RoomModel = CurrentRooms:FindFirstChild(tostring(LatestRoom.Value))
         assert(RoomModel, "Room " .. tostring(LatestRoom.Value) .. " does not exist.")
+
         return triggerRoomHook("ServerRoomChanged", RoomModel)
     end
 )
