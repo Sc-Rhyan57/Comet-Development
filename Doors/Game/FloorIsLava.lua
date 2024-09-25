@@ -223,7 +223,12 @@ Minidocs for chrono's peanut brain:
 
 -- Await Door
 
+if _G.DEBUG_LAVA then
+    notify("Script initialized!")
+end
+
 RoomHook:Wait("ServerRoomChanged")
+
 if _G.DEBUG_LAVA then
     notify("Game-mode started!")
 end
