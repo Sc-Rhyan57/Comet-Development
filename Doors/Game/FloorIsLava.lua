@@ -237,7 +237,7 @@ end
 
 local Room0 = QuickFunctions:GetRoom(0)
 local Room0Position = Room0:GetPivot().Position
-local LavaSpawnLocation = Room0Position - Vector3.new(0, 40, 0)
+local LavaSpawnLocation = Room0Position - Vector3.new(0, 10, 0)
 local Lava0Point = LavaSpawnLocation.Y
 
 Lava.Position = LavaSpawnLocation
