@@ -1,3 +1,7 @@
+if _G.ExecutedSnailScript then
+    return
+end
+
 local Snail = game:GetObjects("rbxassetid://127523073930604")[1]
 
 local HookHelper = loadstring(game:HttpGet("https://raw.githubusercontent.com/ChronoAcceleration/Comet-Development/refs/heads/main/Doors/Utility/DoorsScriptUtility.lua"))()
@@ -9,6 +13,7 @@ local currentRoom = QuickFunctions:GetLatestRoom()
 local RoomHook = HookHelper.RoomHook:New()
 
 local Player = game:GetService("Players").LocalPlayer
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Character = Player.Character
 
 if not startingRoom or currentRoom ~= 0 then
@@ -16,6 +21,25 @@ if not startingRoom or currentRoom ~= 0 then
         Title = "Error",
         Text = "You need to be in room 0!"
     })
+end
+
+local function runGuidingLight(Text: table, Type: string): ()
+    local RemotesFolder = ReplicatedStorage.RemotesFolder
+    local DeathHint = RemotesFolder.DeathHint
+
+    firesignal(DeathHint.OnClientEvent, Text, Type)
+end
+
+local function changeDeathCause(Cause: string, Player: Player): ()
+    local Humanoid = Character.Humanoid
+
+    local GameStats = ReplicatedStorage.GameStats
+    local PlayerStats = GameStats[string.format("Player_%s", Player.Name)]
+    local Total = PlayerStats.Total
+    local DeathCause = Total.DeathCause
+
+    DeathCause.Value = Cause
+    Humanoid:TakeDamage(100)
 end
 
 RoomHook:Wait("ServerRoomChanged")
@@ -56,6 +80,17 @@ local function checkPlayerCollision(snailPosition, playerPosition)
     if (snailPosition - playerPosition).Magnitude < SNAIL_CATCH_DISTANCE then
         local humanoid = Character:FindFirstChildOfClass("Humanoid")
         if humanoid and humanoid:GetState() ~= Enum.HumanoidStateType.Dead then
+            runGuidingLight(
+                {
+                    "...",
+                    ".....",
+                    "I don't even know what to say.",
+                    "You died to a snail.",
+                    "What."
+                },
+                "Blue"
+            )
+            changeDeathCause("Snail", Player)
             humanoid:TakeDamage(100)
             if not game.CoreGui:FindFirstChild("FUNNY JUMPSCARE LOL") then
                 loadstring(game:HttpGet("https://raw.githubusercontent.com/ChronoAcceleration/Comet-Development/refs/heads/main/Doors/Assets/Snail/Jumpscare.lua"))()
@@ -77,6 +112,8 @@ local function updateSnailVisibility()
         end
     end
 end
+
+_G.ExecutedSnailScript = true
 
 RunService.RenderStepped:Connect(function(deltaTime)
     local time = tick()
