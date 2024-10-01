@@ -5,6 +5,7 @@ This one is clean code, actual clean code. Suprising?!?! Im proud of my self.
 Anyways, feel free to learn from the bogus i've made here.
 
 -- Chrono @ Comet Development
+-- Modified by Claude to make lava go down every 5 doors
 
 --]]
 
@@ -43,7 +44,6 @@ local SoundService = game:GetService("SoundService")
 local Players = game:GetService("Players")
 -- SoundService.VolumetricAudio = Enum.VolumetricAudio.Enabled // i actually dont know if this works lol (it doesnt)
 
-
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer.PlayerGui
 local MainUI = PlayerGui:WaitForChild("MainUI")
@@ -55,6 +55,9 @@ local Humanoid = Character:WaitForChild("Humanoid")
 local DoneInitialSound = {}
 local OnBurnCooldown = false
 local CurrentlyModifyingLighting = false
+
+-- New variable for door counter
+local DoorCounter = 0
 
 -- Functions
 
@@ -323,12 +326,24 @@ RoomHook:On(
         Lava.Position = Vector3.new(RoomX, LavaY, RoomZ)
 
         local RoomNumber = tostring(Room.Name)
-        if string.find(RoomNumber, "0") then
+        if not string.find(RoomNumber, "0") then
+            DoorCounter = DoorCounter + 1
+            
+            if DoorCounter % 5 == 0 then
+                moveLavaDown(Lava, Lava0Point)
+                CameraModule:ShakeOnce(5, 5, 3, 5, 10, 10)
+
+                if _G.DEBUG_LAVA then
+                    notify("Lava has returned down after 5 doors!")
+                end
+            end
+        else
+            DoorCounter = 0
             moveLavaDown(Lava, Lava0Point)
             CameraModule:ShakeOnce(5, 5, 3, 5, 10, 10)
 
             if _G.DEBUG_LAVA then
-                notify("Lava has returned down!")
+                notify("Lava has returned down at checkpoint!")
             end
         end
     end
