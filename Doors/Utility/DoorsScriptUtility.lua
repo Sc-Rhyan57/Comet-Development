@@ -162,8 +162,7 @@ workspace.ChildAdded:Connect(
             local CharacterPosition = Character:GetPivot().Position
             local RushPosition = child:GetPivot().Position
             local Magnitude = (CharacterPosition - RushPosition).Magnitude
-            print(Magnitude)
-
+            
             if Magnitude <= 400 then
                 return triggerEntityHook("rush", child)
             end
