@@ -163,9 +163,7 @@ workspace.ChildAdded:Connect(
             local RushPosition = child:GetPivot().Position
             local Magnitude = (CharacterPosition - RushPosition).Magnitude
             
-            if Magnitude <= 1000 then
-                return triggerEntityHook("rush", child)
-            end
+            return triggerEntityHook("rush", child)
         elseif child.Name == "AmbushMoving" then
             local Character = Player.Character
             assert(Character, "Character does not exist.")
@@ -174,9 +172,7 @@ workspace.ChildAdded:Connect(
             local RushPosition = child:GetPivot().Position
             local Magnitude = (CharacterPosition - RushPosition).Magnitude
 
-            if Magnitude <= 1000 then
-                return triggerEntityHook("ambush", child)
-            end
+            return triggerEntityHook("ambush", child)
         end
     end
 )
