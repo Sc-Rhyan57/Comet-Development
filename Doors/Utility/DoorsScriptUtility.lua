@@ -163,7 +163,7 @@ workspace.ChildAdded:Connect(
             local RushPosition = child:GetPivot().Position
             local Magnitude = (CharacterPosition - RushPosition).Magnitude
             
-            if Magnitude <= 400 then
+            if Magnitude <= 1000 then
                 return triggerEntityHook("rush", child)
             end
         elseif child.Name == "AmbushMoving" then
@@ -174,7 +174,7 @@ workspace.ChildAdded:Connect(
             local RushPosition = child:GetPivot().Position
             local Magnitude = (CharacterPosition - RushPosition).Magnitude
 
-            if Magnitude <= 400 then
+            if Magnitude <= 1000 then
                 return triggerEntityHook("ambush", child)
             end
         end
