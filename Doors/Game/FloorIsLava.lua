@@ -22,8 +22,8 @@ local QuickFunctions = HookHelper.QuickFunctions
 
 local BURN_CONFIGURATION = {
     ["InitialSoundCooldown"] = 5,
-    ["BurnDamage"] = 0.1,
-    ["DamagePerSecond"] = 10.5,
+    ["BurnDamage"] = 5,
+    ["DamagePerSecond"] = 1.5,
     ["LockedRoomGracePeriod"] = 10
 }
 
