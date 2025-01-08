@@ -62,9 +62,9 @@ function GenerateRoom(Point)
         if not Prompts then print("cant find prompts") return end
 
         task.spawn(function()
-            firesignal(Caption.OnClientEvent, "It smells like burnt wood all over. This flooring is covered with ash.")
+            firesignal(Caption.OnClientEvent, true, "It smells like burnt wood all over. This flooring is covered with ash.")
             task.wait(3)
-            firesignal(Caption.OnClientEvent, "What happened here..?")
+            firesignal(Caption.OnClientEvent, true, "What happened here..?")
         end)
 
         local function GetPrompt(name)
@@ -84,21 +84,21 @@ function GenerateRoom(Point)
         if VentRealPrompt then
             VentRealPrompt.Triggered:Connect(function()
                 print"vent"
-                firesignal(Caption.OnClientEvent, "This vent is full of dust, and it wont budge open.")
+                firesignal(Caption.OnClientEvent, true, "This vent is full of dust, and it wont budge open.")
             end)
         end
 
         if PaintingRealPrompt then
             PaintingRealPrompt.Triggered:Connect(function()
                 print"painting"
-                firesignal(Caption.OnClientEvent, "This looks... odd.")
+                firesignal(Caption.OnClientEvent, true, "This looks... odd.")
             end)
         end
 
         if BedRealPrompt then
             BedRealPrompt.Triggered:Connect(function()
                 print"bed"
-                firesignal(Caption.OnClientEvent, "No way! I am not hiding in there. Besides, why do I need to?")
+                firesignal(Caption.OnClientEvent, true, "No way! I am not hiding in there. Besides, why do I need to?")
             end)
         end
 
@@ -107,7 +107,7 @@ function GenerateRoom(Point)
                 if TriggerCrateOnce then return end
                 TriggerCrateOnce = true
                 print"crate"
-                firesignal(Caption.OnClientEvent, _G.CUSTOMCRATEDIALOGUE)
+                firesignal(Caption.OnClientEvent, true, _G.CUSTOMCRATEDIALOGUE)
                 loadstring(game:HttpGet(_G.CUSTOMCRATELOADSTRING))()
             end)
         end
