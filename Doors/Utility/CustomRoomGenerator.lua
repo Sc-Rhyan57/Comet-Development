@@ -49,7 +49,7 @@ function Room:SetupDoorMechanism()
             
             TweenService:Create(
                 self.doorModel.Hinge.Knob, 
-                TweenInfo.new(0.5, Enum.EasingStyle.Back), 
+                TweenInfo.new(0.8, Enum.EasingStyle.Sine), 
                 {C1 = knobOriginalC1 * CFrame.Angles(0, 0, math.rad(-35))}
             ):Play()
             
@@ -68,13 +68,13 @@ function Room:SetupDoorMechanism()
             
             TweenService:Create(
                 self.doorModel.Hinge.Knob, 
-                TweenInfo.new(0.5, Enum.EasingStyle.Back), 
+                TweenInfo.new(0.75, Enum.EasingStyle.Sine), 
                 {C1 = knobOriginalC1}
             ):Play()
             
             TweenService:Create(
                 self.doorModel.Hinge, 
-                TweenInfo.new(0.5, Enum.EasingStyle.Back), 
+                TweenInfo.new(1.5, Enum.EasingStyle.Sine), 
                 {CFrame = self.doorModel.Hinge.CFrame * CFrame.Angles(0, math.rad(-90), 0)}
             ):Play()
         end)
