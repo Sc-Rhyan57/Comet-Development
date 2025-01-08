@@ -18,6 +18,7 @@ function Room.new(roomId, doorId, roomPoint, roomName)
     self.roomId = roomId
     self.doorId = doorId
     self.roomName = roomName
+    self.roomModel = nil
     self.roomPoint = roomPoint
     self.doorModel = nil
     self.onOpenCallbacks = {}
@@ -91,7 +92,8 @@ function Room:Generate()
     if not room then
         return error("Failed to load room model")
     end
-    
+
+    self.roomModel = room
     room.Parent = workspace.CurrentRooms
     room.Name = self.roomName
     room:SetPrimaryPartCFrame(self.roomPoint.CFrame)
