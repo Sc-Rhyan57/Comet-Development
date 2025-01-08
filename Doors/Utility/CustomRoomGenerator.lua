@@ -3,7 +3,7 @@ local TweenService = game:GetService("TweenService")
 local Room = {}
 Room.__index = Room
 
-function Room.new(roomId, doorId, roomPoint)
+function Room.new(roomId, doorId, roomPoint, roomName)
     if not roomId then
         return error("Room ID is required")
     end
@@ -17,6 +17,7 @@ function Room.new(roomId, doorId, roomPoint)
     local self = setmetatable({}, Room)
     self.roomId = roomId
     self.doorId = doorId
+    self.roomName = roomName
     self.roomPoint = roomPoint
     self.doorModel = nil
     self.onOpenCallbacks = {}
@@ -92,7 +93,7 @@ function Room:Generate()
     end
     
     room.Parent = workspace.CurrentRooms
-    room.Name = "CustomRoom_Generated"..tostring(tick())
+    room.Name = self.roomName
     room:SetPrimaryPartCFrame(self.roomPoint.CFrame)
     
     self:CreateDoor()
