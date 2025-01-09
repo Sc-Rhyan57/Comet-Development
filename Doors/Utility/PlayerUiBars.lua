@@ -1,7 +1,7 @@
 --[[
 
 I'm not giving documentation for tis one since im a little lazy
-feel free to modify, tinker, or use for your own scripts, i couldnt care less.
+feel free to modify, tinker, or use for your own scripts
 
 - Chrono comet devleopment or something
 
