@@ -123,6 +123,7 @@ function PlayerUI:_createInternalLayout(frame)
 	username.TextColor3 = Color3.fromRGB(255, 222, 189)
 	username.TextScaled = true
 	username.RichText = true
+	username.TextXAlignment = Enum.TextXAlignment.Left
 	self.username = username
 	username.Parent = info
 
