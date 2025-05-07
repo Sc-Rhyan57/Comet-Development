@@ -5,7 +5,7 @@ This is an re-creation of my unreleased custom Doors gamemode, "Doors But Horror
 The premise is basically a pitch-black environment, with the only light source being curious light.
 There may be a few new entities you will not recognize aswell.
 
-SyncHelper Utility Module Source: https://github.com/ChronoAcceleration/Comet-Development/blob/main/Doors/Utility/SyncHelper.lua
+SyncHelper Utility Module Source: https://github.com/Sc-rhyan57/Comet-Development/blob/main/Doors/Utility/SyncHelper.lua
 -- Chrono @Comet Development
 
 --]]
